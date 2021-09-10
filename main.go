@@ -101,6 +101,7 @@ func main() {
 	for key, contact := range resultContact {
 		fmt.Println(key, "_", contact)
 		msg := strings.ReplaceAll(required_template.Template_text, "{{contact_name}}", contact.Contact_name)
+		fmt.Println(msg,"msg")
 		sendMail(from, password, []string{contact.Contact_name}, msg)
 	}
 
