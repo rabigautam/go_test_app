@@ -4,7 +4,19 @@ import (
 	"encoding/json"
 	"log"
 )
-
+type Template struct {
+	Template_id         string
+	Template_name       string
+	Template_create     string
+	Template_update     string
+	Template_html       string
+	Template_text       string
+	Is_removable        string
+	Template_screenshot string
+}
+type TemplateResponse struct {
+	Result []Template
+}
 func getTemplate(baseUrl string,token string) (Template,error) {
 
 	templateUrl := baseUrl + "template/"

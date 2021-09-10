@@ -7,9 +7,9 @@ import (
 	"log"
 	"net/http"
 	"net/smtp"
+	env "github.com/joho/godotenv"
 	"os"
 )
-
 
 func doGetRequest(url string, token string) ([]byte, error) {
 	//request to given url
@@ -41,9 +41,10 @@ func doGetRequest(url string, token string) ([]byte, error) {
 	return body, err
 }
 
-// Sending Email Using Smtp in Golang
+// Sending Email Using Smtp 
+//At the moment mail server won't work
+// It's been just simulated
 
-// Main function
 func sendMail(from string, password string, toList []string, msg string) {
 
 	host := "smtp.gmail.com"
@@ -65,4 +66,11 @@ func sendMail(from string, password string, toList []string, msg string) {
 	}
 
 	fmt.Println("Successfully sent mail to all user in toList")
+}
+func envVariable(key string) string {
+	err := env.Load(".env")
+	if err != nil {
+		log.Fatalf("Error occurs while loading .env")
+	}
+	return os.Getenv((key))
 }
