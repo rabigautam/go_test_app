@@ -7,9 +7,6 @@ import (
 	"fmt"
 	"strings"
 
-	// "strings"
-
-	// "encoding/json"
 	"io"
 	"log"
 	"net/http"
@@ -63,7 +60,9 @@ func main() {
 	from := envVariable("MAIL")
 	password := envVariable("PASWD")
 
-	fmt.Println("from :"+from)
+	// toList:=[]string{}
+
+	fmt.Println("from :" + from)
 
 	templateUrl := baseUrl + "template/"
 	body, err := doGetRequest(templateUrl, token)
@@ -83,9 +82,10 @@ func main() {
 		if value.Template_id == "17" {
 			// Found!
 			required_template = value
-
+			break
 		}
 	}
+	fmt.Println(required_template.Template_html)
 
 	contactUrl := baseUrl + "contact/?limit=11"
 	body, err = doGetRequest(contactUrl, token)
@@ -99,9 +99,8 @@ func main() {
 	resultContact := contactResponse.Result
 
 	for key, contact := range resultContact {
+		fmt.Println(key, "_", contact)
 		msg := strings.ReplaceAll(required_template.Template_text, "{{contact_name}}", contact.Contact_name)
-		fmt.Println(key, "_", contact.Contact_create)
-
 		sendMail(from, password, []string{contact.Contact_name}, msg)
 	}
 
