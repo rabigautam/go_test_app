@@ -65,13 +65,29 @@ func main() {
 
 	required_contact, err := getContact(baseUrl, token)
 	resultContact := required_contact.Result
+	// contactMap := make(map[int]Contact)
 
+	// for i := 0; i < len(resultContact); i++ {
+	// 	fmt.Println(resultContact[i])
+	// 	contactMap[i] = resultContact[i]
+		
+
+	// }
+	// fmt.Println(contactMap,"contact")
+	// for key, value := range contactMap {  
+	// 	fmt.Println(key) 
+	// 	msg := strings.ReplaceAll(required_template.Template_text, "{{contact_name}}", value.Contact_name)
+	// 	fmt.Println(msg, "msg")
+
+	// 	sendMail(from, password, []string{value.Contact_name}, msg)
+	//    } 
 	for key, contact := range resultContact {
 		fmt.Println(key, "_", contact)
 		msg := strings.ReplaceAll(required_template.Template_text, "{{contact_name}}", contact.Contact_name)
 		fmt.Println(msg, "msg")
 
 		sendMail(from, password, []string{contact.Contact_name}, msg)
-	}
+	} 
+	
 
 }
