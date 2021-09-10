@@ -4,10 +4,16 @@ import (
 	// "fmt"
 	"crypto/tls"
 	"encoding/json"
+	"fmt"
+	"strings"
+
+	// "strings"
+
 	// "encoding/json"
 	"io"
 	"log"
 	"net/http"
+	"net/smtp"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -35,15 +41,29 @@ type Template struct {
 	Is_removable        string
 	Template_screenshot string
 }
-
-type Response struct {
+type Contact struct {
+	Contact_id     string
+	Contact_name   string
+	Contact_create string
+	Contact_update string
+	Is_removable   string
+}
+type TemplateResponse struct {
 	Result []Template
+}
+type ContactResponse struct {
+	Result []Contact
 }
 
 func main() {
 
 	baseUrl := envVariable("BASE_URL")
 	token := envVariable(("AUTHENTICATION_TOKEN"))
+
+	from := envVariable("MAIL")
+	password := envVariable("PASWD")
+
+	fmt.Println("from :"+from)
 
 	templateUrl := baseUrl + "template/"
 	body, err := doGetRequest(templateUrl, token)
@@ -52,9 +72,9 @@ func main() {
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
-	var response Response
-	json.Unmarshal(body, &response)
-	result := response.Result
+	var templateResponse TemplateResponse
+	json.Unmarshal(body, &templateResponse)
+	result := templateResponse.Result
 
 	var required_template Template
 
@@ -66,15 +86,23 @@ func main() {
 
 		}
 	}
-	template_html:=required_template.Template_html
-	log.Println(template_html)
-	
+
 	contactUrl := baseUrl + "contact/?limit=11"
 	body, err = doGetRequest(contactUrl, token)
 	//request to given url
 
 	if err != nil {
 		log.Fatalf(err.Error())
+	}
+	var contactResponse ContactResponse
+	json.Unmarshal(body, &contactResponse)
+	resultContact := contactResponse.Result
+
+	for key, contact := range resultContact {
+		msg := strings.ReplaceAll(required_template.Template_text, "{{contact_name}}", contact.Contact_name)
+		fmt.Println(key, "_", contact.Contact_create)
+
+		sendMail(from, password, []string{contact.Contact_name}, msg)
 	}
 
 }
@@ -109,3 +137,28 @@ func doGetRequest(url string, token string) ([]byte, error) {
 	return body, err
 }
 
+// Sending Email Using Smtp in Golang
+
+// Main function
+func sendMail(from string, password string, toList []string, msg string) {
+
+	host := "smtp.gmail.com"
+
+	// Its the default port of smtp server
+	port := "587"
+
+	body := []byte(msg)
+
+	// to act as username.
+	auth := smtp.PlainAuth("", from, password, host)
+
+	err := smtp.SendMail(host+":"+port, auth, from, toList, body)
+
+	// handling the errors
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	fmt.Println("Successfully sent mail to all user in toList")
+}
